@@ -1,4 +1,4 @@
-const shipFactory = require('../Factories/Ship.js');
+import { shipFactory } from '../Factories/Ship.js'
 
 test('test the length of ship', () => {
     let ship= shipFactory(5)

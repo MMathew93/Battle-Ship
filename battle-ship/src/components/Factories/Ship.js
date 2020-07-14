@@ -22,4 +22,4 @@ function shipFactory(length) {
 
 //5, 4, 3, 3, 2
 
-module.exports= shipFactory;
+export { shipFactory }
