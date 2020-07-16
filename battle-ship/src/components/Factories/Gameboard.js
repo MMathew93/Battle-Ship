@@ -16,17 +16,18 @@ function gameBoard(size) {
         placeShip(shipLength, x, y, isHorizontal) {
             let xEnd = x;
             let yEnd = y;
-            let err;
+            let coordinates = []
             for (let i = 0; i < shipLength; i++) {
                 if (xEnd > size - 1 || yEnd > size - 1) {
-                    err = new Error('This is outside the gameboard')
+                    throw new Error('This is outside the gameboard')
                 }
 
                 if (this.board[xEnd][yEnd] === markings.ship) {
-                    err = new Error('There is already a ship here')
+                    throw new Error('There is already a ship here')
                 }
-                
+
                 this.board[xEnd][yEnd] = markings.ship
+                coordinates.push([xEnd, yEnd])
                 if (isHorizontal) {
                     yEnd += 1
                 } else {
@@ -36,18 +37,48 @@ function gameBoard(size) {
 
             this.ships.push({
                 ship: shipFactory(shipLength),
-                start: [x, y],
-                end: [xEnd, yEnd]
+                coordinates: coordinates
             })
-            return err
         },
         receiveAttack(x, y) {
-            let err;
-            if (x > this.board.size - 1 || y > this.board.size - 1) {
-                err= new Error('This exceeds the current board size')
+            if (x > size - 1 || y > size - 1) {
+                throw new Error('Coordinates are exceeding the gameboard size')
             }
-            if(this.board[x][y] === markings.ship) {
+            if (this.board[x][y] === markings.ship) {
                 this.board[x][y] = markings.hit
+                //we need to call hit function on hit ship after we locate the index of the coordinates within the ship object
+                let index;
+                let target;
+                for (let i = 0; i < this.ships.length; i++) {
+                    for (let j = 0; j < this.ships[i].coordinates.length; j++) {
+                        let a = this.ships[i].coordinates[j]
+                        let b = [x, y]
+                        if (this.arrayEquals(a, b)) {
+                            target = i
+                            index = j
+                            break;
+                        }
+                    }
+                }
+                this.ships[target].ship.hit(index)
+                this.ships[target].ship.isSunk()
+            } else {
+                this.board[x][y] = markings.miss
+                this.misses.push([x, y])
+            }
+        },
+        arrayEquals(a, b) {
+            return Array.isArray(a) &&
+                Array.isArray(b) &&
+                a.length === b.length &&
+                a.every((val, index) => val === b[index])
+        },
+        gameLoss() {
+            //need gameboards to report whether or not all their ships have been sunk
+            //if ship is sunk it is true, else false
+            let sunkenShips= this.ships.map(x => x.ship.sunk )
+            if(sunkenShips.every(x => x === true)) {
+                console.log('All ships have been sunk, you lose!')
             }
         }
     }
@@ -56,8 +87,3 @@ function gameBoard(size) {
 export {
     gameBoard
 }
-
-//Gameboards should be able to place ships at specific coordinates by calling the ship factory function
-//Gameboards should have a receiveAttack function that takes a pair of coordinates, determines whether or not the attack hit a ship and then sends the ‘hit’ function to the correct ship, or records the coordinates of the missed shot.
-//Gameboards should keep track of missed attacks so they can display them properly.
-//Gameboards should be able to report whether or not all of their ships have been sunk.
