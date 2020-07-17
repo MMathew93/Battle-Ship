@@ -10,10 +10,8 @@ function shipFactory(length) {
         isSunk() {
             if(this.damage.every(x => x === true)) {
                 this.sunk= true
-                console.log('This ship has sunk!')
                 return this.sunk
             }else {
-                console.log('This ship is still active')
                 return this.sunk
               }
         }

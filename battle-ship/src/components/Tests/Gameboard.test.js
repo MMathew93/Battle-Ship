@@ -4,8 +4,8 @@ import {
 
 
 test('returns the gameboard', () => {
-    let board = gameBoard(8)
-    expect(board.board).toEqual(
+    let showBoard = gameBoard(8).getBoard()
+    expect(showBoard).toEqual(
         [
             ["$", "$", "$", "$", "$", "$", "$", "$"],
             ["$", "$", "$", "$", "$", "$", "$", "$"],
@@ -43,8 +43,9 @@ test('should error if ship is being placed on existing ship', () => {
 
 test('returns board with ship at coordinates', () => {
     let board = gameBoard(8)
+    let showBoard= board.getBoard()
     board.placeShip(3, 0, 0, true)
-    expect(board.board).toEqual(
+    expect(showBoard).toEqual(
         [
             ["#", "#", "#", "$", "$", "$", "$", "$"],
             ["$", "$", "$", "$", "$", "$", "$", "$"],
@@ -60,8 +61,9 @@ test('returns board with ship at coordinates', () => {
 
 test('returns board with ship at coordinates', () => {
     let board = gameBoard(8)
+    let showBoard= board.getBoard()
     board.placeShip(3, 0, 0, false)
-    expect(board.board).toEqual(
+    expect(showBoard).toEqual(
         [
             ["#", "$", "$", "$", "$", "$", "$", "$"],
             ["#", "$", "$", "$", "$", "$", "$", "$"],
@@ -92,9 +94,10 @@ test('should throw an error if x coordinates are outside of board size', () => {
 
 test('checks to verify if ship is hit that it marks it', () => {
     let board = gameBoard(8)
+    let showBoard= board.getBoard()
     board.placeShip(3, 0, 0, false)
     board.receiveAttack(0, 0)
-    expect(board.board).toEqual(
+    expect(showBoard).toEqual(
         [
             ["X", "$", "$", "$", "$", "$", "$", "$"],
             ["#", "$", "$", "$", "$", "$", "$", "$"],
@@ -110,9 +113,10 @@ test('checks to verify if ship is hit that it marks it', () => {
 
 test('checks to verify if miss it marks', () => {
     let board = gameBoard(8)
+    let showBoard= board.getBoard()
     board.placeShip(3, 0, 0, false)
     board.receiveAttack(0, 4)
-    expect(board.board).toEqual(
+    expect(showBoard).toEqual(
         [
             ["#", "$", "$", "$", "O", "$", "$", "$"],
             ["#", "$", "$", "$", "$", "$", "$", "$"],
@@ -130,7 +134,7 @@ test('checks to verify missed attack get logged', () => {
     let board = gameBoard(8)
     board.placeShip(3, 0, 0, false)
     board.receiveAttack(0, 4)
-    expect(board.misses).toEqual(
+    expect(board.getMisses()).toEqual(
         [
             [0, 4]
         ]

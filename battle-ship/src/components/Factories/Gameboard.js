@@ -9,10 +9,10 @@ function gameBoard(size) {
         hit: 'X',
         miss: 'O'
     }
+    let board= new Array(size).fill().map(() => Array(size).fill(markings.ocean))
+    let ships= []
+    let misses= []
     return {
-        board: new Array(size).fill().map(() => Array(size).fill(markings.ocean)),
-        ships: [],
-        misses: [],
         placeShip(shipLength, x, y, isHorizontal) {
             let xEnd = x;
             let yEnd = y;
@@ -22,11 +22,11 @@ function gameBoard(size) {
                     throw new Error('This is outside the gameboard')
                 }
 
-                if (this.board[xEnd][yEnd] === markings.ship) {
+                if (board[xEnd][yEnd] === markings.ship) {
                     throw new Error('There is already a ship here')
                 }
 
-                this.board[xEnd][yEnd] = markings.ship
+                board[xEnd][yEnd] = markings.ship
                 coordinates.push([xEnd, yEnd])
                 if (isHorizontal) {
                     yEnd += 1
@@ -35,7 +35,7 @@ function gameBoard(size) {
                 }
             }
 
-            this.ships.push({
+            ships.push({
                 ship: shipFactory(shipLength),
                 coordinates: coordinates
             })
@@ -44,14 +44,14 @@ function gameBoard(size) {
             if (x > size - 1 || y > size - 1) {
                 throw new Error('Coordinates are exceeding the gameboard size')
             }
-            if (this.board[x][y] === markings.ship) {
-                this.board[x][y] = markings.hit
+            if (board[x][y] === markings.ship) {
+                board[x][y] = markings.hit
                 //we need to call hit function on hit ship after we locate the index of the coordinates within the ship object
                 let index;
                 let target;
-                for (let i = 0; i < this.ships.length; i++) {
-                    for (let j = 0; j < this.ships[i].coordinates.length; j++) {
-                        let a = this.ships[i].coordinates[j]
+                for (let i = 0; i < ships.length; i++) {
+                    for (let j = 0; j < ships[i].coordinates.length; j++) {
+                        let a = ships[i].coordinates[j]
                         let b = [x, y]
                         if (this.arrayEquals(a, b)) {
                             target = i
@@ -60,11 +60,11 @@ function gameBoard(size) {
                         }
                     }
                 }
-                this.ships[target].ship.hit(index)
-                this.ships[target].ship.isSunk()
+                ships[target].ship.hit(index)
+                ships[target].ship.isSunk()
             } else {
-                this.board[x][y] = markings.miss
-                this.misses.push([x, y])
+                board[x][y] = markings.miss
+                misses.push([x, y])
             }
         },
         arrayEquals(a, b) {
@@ -76,10 +76,22 @@ function gameBoard(size) {
         gameLoss() {
             //need gameboards to report whether or not all their ships have been sunk
             //if ship is sunk it is true, else false
-            let sunkenShips= this.ships.map(x => x.ship.sunk )
+            let sunkenShips= ships.map(x => x.ship.sunk )
             if(sunkenShips.every(x => x === true)) {
                 console.log('All ships have been sunk, you lose!')
             }
+        },
+        getBoard() {
+            return board
+          },
+        getMarkings(){
+          return markings
+        },
+        getShips() {
+            return ships
+        },
+        getMisses() {
+            return misses
         }
     }
 }

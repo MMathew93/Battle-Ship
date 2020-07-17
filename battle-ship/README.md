@@ -22,3 +22,7 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+
+### Current bugs or small issues
+gameBoard function gameLoss provides console log and undefined, unsure what unefined is coming from
