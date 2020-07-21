@@ -3,13 +3,13 @@
   <h1> {{ title }} </h1>
   <div class="playarea">
     <div class="gameboard">
-      <div v-for="(row, rowindex) in playerBoard" :key="rowindex">
-        <div class="box" v-for="(col, colindex) in playerBoard" :key="rowindex-colindex"></div>    
+      <div v-for="(row, rowindex) in humanBoard" :key="rowindex">
+        <div class="box" v-for="(col, colindex) in humanBoard" :key="rowindex-colindex"></div>    
       </div>
     </div>
     <div class="gameboard">
       <div v-for="(row, rowindex) in botBoard" :key="rowindex">
-        <div class="box" v-for="(col, colindex) in botBoard" :key="rowindex-colindex" @click="boxCoordinate(colindex, rowindex)"></div>     
+        <div class="box" v-for="(col, colindex) in botBoard" :key="rowindex-colindex" @click="takingTurns(colindex, rowindex)"></div>     
       </div>
     </div>
   </div>
@@ -17,31 +17,74 @@
 </template>
 
 <script>
-import { beginGame } from './GameLoop/Game'
-
+//import { beginGame } from './GameLoop/Game'
+import { gameBoard } from './Factories/Gameboard.js'
+import { player } from './Factories/Player.js'
 
 export default {
   name: 'GameBoard',
   data() {
     return {
       human: null,
-      playerBoard: null,
+      humanBoard: null,
+      humanPlayer: null,
+      playerLose: false,
       bot: null,
       botBoard: null,
-      title: 'BATTLESHIP'
+      botPlayer: null,
+      botLose: false,
+      title: 'BATTLESHIP',
+      hit: 'X',
+      miss: 'O'
     }
   },
   methods: {
-   boxCoordinate(colindex, rowindex) {
-     this.human.playerMove(colindex, rowindex)
-   }
+   takingTurns(e, colindex, rowindex) {
+     let space= e
+     console.log(space)
+     this.humanPlayer.playerMove(this.bot, colindex, rowindex)
+      if(this.botBoard[colindex][rowindex] === 'X') {
+        //space.innerText= this.hit
+      }else {
+        //space.innerText= this.miss
+      }
+     this.botPlayer.botMove(this.human)
+   },
+   statusOfGame() {
+        if(this.human.gameLoss() === true) {
+            this.playerLose= true
+            console.log('YOU LOSE!')
+        } else if(this.bot.gameLoss() === true) {
+          this.botLose= true
+            console.log('YOU WIN!')
+        } else {
+            return false
+        }
+    }
+    /*gameOver() {
+      alert('Implement a gameover screen and a reset button')
+    },**/
   },
-  beforeMount() {
-    beginGame()
-    this.playerBoard= beginGame()[0].getBoard()
-    this.botBoard= beginGame()[1].getBoard()
-    this.human=beginGame()[2]
-    this.bot=beginGame()[3]
+  mounted() {
+    //establish data
+    this.human= gameBoard(10)
+    this.humanBoard= this.human.getBoard()
+    this.humanPlayer= player()
+    this.bot= gameBoard(10)
+    this.botBoard= this.bot.getBoard()
+    this.botPlayer= player()
+
+    //manually setting boats for testng
+    this.human.placeShip(5, 0, 0, true)
+    this.human.placeShip(4, 6, 9, false)
+    this.human.placeShip(3, 3, 3, true)
+    this.human.placeShip(3, 5, 2, false)
+    this.human.placeShip(2, 2, 8, true)
+    this.bot.placeShip(5, 0, 0, true)
+    this.bot.placeShip(4, 6, 9, false)
+    this.bot.placeShip(3, 3, 3, true)
+    this.bot.placeShip(3, 5, 2, false)
+    this.bot.placeShip(2, 2, 8, true)
   }
 }
 </script>

@@ -78,7 +78,7 @@ function gameBoard(size) {
             //if ship is sunk it is true, else false
             let sunkenShips= ships.map(x => x.ship.sunk )
             if(sunkenShips.every(x => x === true)) {
-                console.log('All ships have been sunk, you lose!')
+                console.log('All ships have been sunk!')
             }
         },
         getBoard() {
