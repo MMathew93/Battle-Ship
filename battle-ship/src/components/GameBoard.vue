@@ -42,7 +42,9 @@ export default {
    takingTurns(colindex, rowindex) {
      this.humanPlayer.playerMove(this.bot, colindex, rowindex)
      this.updateBotBoard(colindex, rowindex)
+     this.statusOfGame()
      this.botTurn()
+     this.statusOfGame()
    },
 
    botTurn() {
@@ -76,10 +78,10 @@ export default {
    statusOfGame() {
         if(this.human.gameLoss() === true) {
             this.playerLose= true
-            console.log('YOU LOSE!')
+            console.log('ALL OF YOUR SHIPS HAVE BEEN SUNK! YOU LOSE!')
         } else if(this.bot.gameLoss() === true) {
           this.botLose= true
-            console.log('YOU WIN!')
+            console.log('YOU SUNK ALL THE ENEMY SHIPS! YOU WIN!')
         } else {
             return false
         }
