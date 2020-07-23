@@ -1,4 +1,5 @@
 function player() {
+    let botCoords= []
     return {
         playerMove(gb, x, y) {
             let board= gb.getBoard()
@@ -16,11 +17,17 @@ function player() {
             let markings= gb.getMarkings()
             if(board[x][y] !== markings.hit && board[x][y] !== markings.miss ) {
                 gb.receiveAttack(x, y)
+                botCoords= []
+                botCoords.push(x)
+                botCoords.push(y)
             }else {
                 this.botMove(gb)
             }
+        },
+        getBotCoords() {
+            return botCoords
+        }
     }
-}
 }
 
 export { player }

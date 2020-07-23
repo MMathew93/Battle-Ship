@@ -4,12 +4,12 @@
   <div class="playarea">
     <div class="gameboard">
       <div v-for="(row, rowindex) in humanBoard" :key="rowindex">
-        <div class="box" v-for="(col, colindex) in humanBoard" :key="rowindex-colindex"></div>    
+        <div class="box" v-for="(col, colindex) in humanBoard" :key="rowindex-colindex" :bot-coords="[colindex, rowindex]"></div>    
       </div>
     </div>
     <div class="gameboard">
       <div v-for="(row, rowindex) in botBoard" :key="rowindex">
-        <div class="box" v-for="(col, colindex) in botBoard" :key="rowindex-colindex" :data-coords="[colindex, rowindex]" @click="takingTurns(colindex, rowindex)"></div>     
+        <div class="box" v-for="(col, colindex) in botBoard" :key="rowindex-colindex" :human-coords="[colindex, rowindex]" @click="takingTurns(colindex, rowindex)"></div>     
       </div>
     </div>
   </div>
@@ -47,24 +47,30 @@ export default {
 
    botTurn() {
      this.botPlayer.botMove(this.human)
-     this.updateHumanBoard()
+     let coords= this.botPlayer.getBotCoords()
+     this.updateHumanBoard(coords)
    },
 
    updateBotBoard(colindex, rowindex) {
-    let col= colindex
-    let row= rowindex
     if(this.botBoard[colindex][rowindex] === 'X') {
-      const spot= document.querySelector(`[data-coords="${col},${row}"]`);
+      const spot= document.querySelector(`[human-coords="${colindex},${rowindex}"]`);
       spot.append('X')
     }
     if(this.botBoard[colindex][rowindex] === 'O') {
-      const spot= document.querySelector(`[data-coords="${col},${row}"]`);
+      const spot= document.querySelector(`[human-coords="${colindex},${rowindex}"]`);
       spot.append('O')
     }
    },
 
-   updateHumanBoard() {
-    console.log('copy the bot board update function')
+   updateHumanBoard(coords) {
+    if(this.humanBoard[coords[0]][coords[1]] === 'X') {
+      const spot= document.querySelector(`[bot-coords="${coords[0]},${coords[1]}"]`);
+      spot.append('X')
+    }
+    if(this.humanBoard[coords[0]][coords[1]] === 'O') {
+      const spot= document.querySelector(`[bot-coords="${coords[0]},${coords[1]}"]`);
+      spot.append('O')
+    }
    },
 
    statusOfGame() {
@@ -126,5 +132,6 @@ export default {
   height: 60px; 
   border: 1px solid red; 
   color: white;
+  font-size: 50px;
 }
 </style>
