@@ -9,7 +9,7 @@
     </div>
     <div class="gameboard">
       <div v-for="(row, rowindex) in botBoard" :key="rowindex">
-        <div class="box" v-for="(col, colindex) in botBoard" :key="rowindex-colindex" @click="takingTurns(colindex, rowindex)"></div>     
+        <div class="box" v-for="(col, colindex) in botBoard" :key="rowindex-colindex" :data-coords="[colindex, rowindex]" @click="takingTurns(colindex, rowindex)"></div>     
       </div>
     </div>
   </div>
@@ -39,17 +39,34 @@ export default {
     }
   },
   methods: {
-   takingTurns(e, colindex, rowindex) {
-     let space= e
-     console.log(space)
+   takingTurns(colindex, rowindex) {
      this.humanPlayer.playerMove(this.bot, colindex, rowindex)
-      if(this.botBoard[colindex][rowindex] === 'X') {
-        //space.innerText= this.hit
-      }else {
-        //space.innerText= this.miss
-      }
-     this.botPlayer.botMove(this.human)
+     this.updateBotBoard(colindex, rowindex)
+     this.botTurn()
    },
+
+   botTurn() {
+     this.botPlayer.botMove(this.human)
+     this.updateHumanBoard()
+   },
+
+   updateBotBoard(colindex, rowindex) {
+    let col= colindex
+    let row= rowindex
+    if(this.botBoard[colindex][rowindex] === 'X') {
+      const spot= document.querySelector(`[data-coords="${col},${row}"]`);
+      spot.append('X')
+    }
+    if(this.botBoard[colindex][rowindex] === 'O') {
+      const spot= document.querySelector(`[data-coords="${col},${row}"]`);
+      spot.append('O')
+    }
+   },
+
+   updateHumanBoard() {
+    console.log('copy the bot board update function')
+   },
+
    statusOfGame() {
         if(this.human.gameLoss() === true) {
             this.playerLose= true
