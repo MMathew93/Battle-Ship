@@ -101,9 +101,6 @@
           return false
         }
       }
-      /*gameOver() {
-        alert('Implement a gameover screen and a reset button')
-      },**/
     },
     mounted() {
       //establish data
@@ -120,11 +117,20 @@
       this.human.placeShip(3, 3, 3, true)
       this.human.placeShip(3, 5, 2, false)
       this.human.placeShip(2, 2, 8, true)
-      this.bot.placeShip(5, 0, 0, true)
+
+      this.bot.placeShipRandomly(5)
+      this.bot.placeShipRandomly(4)
+      this.bot.placeShipRandomly(3)
+      this.bot.placeShipRandomly(3)
+      this.bot.placeShipRandomly(2)
+            console.log(this.botBoard)
+            console.log(this.bot.getShips())
+
+      /**this.bot.placeShip(5, 0, 0, true)
       this.bot.placeShip(4, 6, 9, false)
       this.bot.placeShip(3, 3, 3, true)
       this.bot.placeShip(3, 5, 2, false)
-      this.bot.placeShip(2, 2, 8, true)
+      this.bot.placeShip(2, 2, 8, true)*/
     }
   }
 </script>

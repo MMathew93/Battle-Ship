@@ -9,9 +9,9 @@ function gameBoard(size) {
         hit: 'X',
         miss: 'O'
     }
-    let board= new Array(size).fill().map(() => Array(size).fill(markings.ocean))
-    let ships= []
-    let misses= []
+    let board = new Array(size).fill().map(() => Array(size).fill(markings.ocean))
+    let ships = []
+    let misses = []
     return {
         placeShip(shipLength, x, y, isHorizontal) {
             let xEnd = x;
@@ -35,6 +35,39 @@ function gameBoard(size) {
                 }
             }
 
+            ships.push({
+                ship: shipFactory(shipLength),
+                coordinates: coordinates
+            })
+        },
+        placeShipRandomly(shipLength) {
+            let coordinates = []
+            let valid = []
+            let xRandom = Math.floor(Math.random() * Math.floor(10))
+            let yRandom = Math.floor(Math.random() * Math.floor(10))
+            let z = Math.floor(Math.random() * Math.floor(2))
+            if (z === 0 && yRandom > shipLength) {
+                yRandom = Math.floor(Math.random() * Math.floor((shipLength + 1)))
+            } else if (z === 1 && xRandom > shipLength) {
+                xRandom = Math.floor(Math.random() * Math.floor((shipLength + 1)))
+            }
+            for (let i = 0; i < shipLength; i++) {
+                if (board[xRandom][yRandom] === markings.ship) {
+                    valid = []
+                    return this.placeShipRandomly(shipLength)
+                }
+
+                valid.push([xRandom, yRandom])
+                if (z === 0) {
+                    yRandom += 1
+                } else {
+                    xRandom += 1
+                }
+            }
+            for (let i = 0; i < valid.length; i++) {
+                board[valid[i][0]][valid[i][1]] = markings.ship
+                coordinates.push([valid[i][0], valid[i][1]])
+            }
             ships.push({
                 ship: shipFactory(shipLength),
                 coordinates: coordinates
@@ -76,16 +109,16 @@ function gameBoard(size) {
         gameLoss() {
             //need gameboards to report whether or not all their ships have been sunk
             //if ship is sunk it is true, else false
-            let sunkenShips= ships.map(x => x.ship.sunk )
-            if(sunkenShips.every(x => x === true)) {
+            let sunkenShips = ships.map(x => x.ship.sunk)
+            if (sunkenShips.every(x => x === true)) {
                 return true
             }
         },
         getBoard() {
             return board
-          },
-        getMarkings(){
-          return markings
+        },
+        getMarkings() {
+            return markings
         },
         getShips() {
             return ships
