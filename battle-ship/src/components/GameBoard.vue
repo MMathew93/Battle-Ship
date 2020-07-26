@@ -118,7 +118,6 @@
       this.bot = gameBoard(10)
       this.botBoard = this.bot.getBoard()
       this.botPlayer = player()
-      this.human.placeShip(5, 9, 0, true)
 
       //random bot placement on load
       this.bot.placeShipRandomly(5)
