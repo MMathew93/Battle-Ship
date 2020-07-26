@@ -3,6 +3,7 @@
     <div class="title"> {{ title }} </div>
     <div class="playarea">
       <div class="display">
+        <button class="random" @click="randomBoatsHuman"> Random SetUp </button>
         <div class="gameboard">
           <div v-for="(row, rowindex) in humanBoard" :key="rowindex">
             <div class="box" v-for="(col, colindex) in humanBoard" :key="rowindex-colindex"
@@ -26,7 +27,6 @@
 </template>
 
 <script>
-  //import { beginGame } from './GameLoop/Game'
   import {
     gameBoard
   } from './Factories/Gameboard.js'
@@ -100,6 +100,14 @@
         } else {
           return false
         }
+      },
+
+      randomBoatsHuman() {
+        this.human.placeShipRandomly(5)
+        this.human.placeShipRandomly(4)
+        this.human.placeShipRandomly(3)
+        this.human.placeShipRandomly(3)
+        this.human.placeShipRandomly(2)
       }
     },
     mounted() {
@@ -110,27 +118,14 @@
       this.bot = gameBoard(10)
       this.botBoard = this.bot.getBoard()
       this.botPlayer = player()
+      this.human.placeShip(5, 9, 0, true)
 
-      //manually setting boats for testng
-      this.human.placeShip(5, 0, 0, true)
-      this.human.placeShip(4, 6, 9, false)
-      this.human.placeShip(3, 3, 3, true)
-      this.human.placeShip(3, 5, 2, false)
-      this.human.placeShip(2, 2, 8, true)
-
+      //random bot placement on load
       this.bot.placeShipRandomly(5)
       this.bot.placeShipRandomly(4)
       this.bot.placeShipRandomly(3)
       this.bot.placeShipRandomly(3)
       this.bot.placeShipRandomly(2)
-            console.log(this.botBoard)
-            console.log(this.bot.getShips())
-
-      /**this.bot.placeShip(5, 0, 0, true)
-      this.bot.placeShip(4, 6, 9, false)
-      this.bot.placeShip(3, 3, 3, true)
-      this.bot.placeShip(3, 5, 2, false)
-      this.bot.placeShip(2, 2, 8, true)*/
     }
   }
 </script>
@@ -160,6 +155,8 @@
   .display {
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
   }
 
   .gameboard {
@@ -181,5 +178,9 @@
     border: 1px solid red;
     color: white;
     font-size: 50px;
+  }
+
+  .random {
+    width: 20%;
   }
 </style>
