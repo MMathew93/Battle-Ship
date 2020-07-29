@@ -3,24 +3,43 @@
     <div class="title"> {{ title }} </div>
     <div class="playarea">
       <div class="display">
-        <button class="random" @click="randomBoatsHuman"> Random SetUp </button>
+        <div class="ycoord">
+          <div v-for="(col, colindex) in humanBoard" :key="colindex"> {{ colindex }} </div>
+        </div>
         <div class="gameboard">
+          <div class="xcoord">
+            <div v-for="(row, rowindex) in humanBoard" :key="rowindex"> {{ rowindex }} </div>
+          </div>
           <div v-for="(row, rowindex) in humanBoard" :key="rowindex">
             <div class="box" v-for="(col, colindex) in humanBoard" :key="rowindex-colindex"
               :bot-coords="[colindex, rowindex]"></div>
           </div>
         </div>
-        <h1> Your Battalion </h1>
+        <div class="boardDetails">
+          <h1> Your Battalion </h1>
+        </div>
       </div>
-      <div class="gameOver" v-show="gameOver"> {{ status }} </div>
+      <div class="gameOver" v-show="gameOver">
+        {{ status }}
+        <button class="random" v-if="hide" @click="randomBoatsHuman"> Random Ship Placement </button>
+        <button class="reset" v-if="seen" @click="restartGame"> Restart</button>
+      </div>
       <div class="display">
+        <div class="ycoord">
+          <div v-for="(col, colindex) in botBoard" :key="colindex"> {{ colindex }} </div>
+        </div>
         <div class="gameboard">
+          <div class="xcoord">
+            <div v-for="(row, rowindex) in botBoard" :key="rowindex"> {{ rowindex }} </div>
+          </div>
           <div v-for="(row, rowindex) in botBoard" :key="rowindex">
-            <div class="box" v-for="(col, colindex) in botBoard" :key="rowindex-colindex"
+            <div class="box pc" v-bind:class="{ 'disabled': disabled, 'notDisabled': !disabled }" v-for="(col, colindex) in botBoard" :key="rowindex-colindex"
               :human-coords="[colindex, rowindex]" @click="takingTurns(colindex, rowindex)"></div>
           </div>
         </div>
-        <h1> Computer Battalion </h1>
+        <div class="boardDetails">
+          <h1> Computer Battalion </h1>
+        </div>
       </div>
     </div>
   </div>
@@ -49,7 +68,10 @@
         title: 'BATTLESHIP',
         hit: 'X',
         miss: 'O',
-        status: '',
+        status: 'Drag your ships onto your board, or randomize the placement! Click on the Bot Board to begin after setting your ship!',
+        seen: false,
+        hide: true,
+        disabled: false,
         gameOver: true
       }
     },
@@ -82,32 +104,66 @@
       updateHumanBoard(coords) {
         if (this.humanBoard[coords[0]][coords[1]] === 'X') {
           const spot = document.querySelector(`[bot-coords="${coords[0]},${coords[1]}"]`);
-          spot.append('X')
+          spot.innerHTML = 'X'
         }
         if (this.humanBoard[coords[0]][coords[1]] === 'O') {
           const spot = document.querySelector(`[bot-coords="${coords[0]},${coords[1]}"]`);
-          spot.append('O')
+          spot.innerHTML = 'O'
         }
       },
 
       statusOfGame() {
         if (this.human.gameLoss() === true) {
+          this.disabled = true
           this.playerLose = true
           this.status = 'ALL OF YOUR SHIPS HAVE BEEN SUNK! YOU LOSE!'
+          this.seen = true
         } else if (this.bot.gameLoss() === true) {
+          this.disabled = true
           this.botLose = true
           this.status = 'YOU SUNK ALL ENEMY SHIPS! YOU WIN!'
+          this.seen = true
         } else {
           return false
         }
       },
 
       randomBoatsHuman() {
+        this.hide = false
+        this.status = ''
         this.human.placeShipRandomly(5)
         this.human.placeShipRandomly(4)
         this.human.placeShipRandomly(3)
         this.human.placeShipRandomly(3)
         this.human.placeShipRandomly(2)
+      },
+
+      randomBoatsBot() {
+        this.bot.placeShipRandomly(5)
+        this.bot.placeShipRandomly(4)
+        this.bot.placeShipRandomly(3)
+        this.bot.placeShipRandomly(3)
+        this.bot.placeShipRandomly(2)
+      },
+
+      eraseBoard() {
+        let erase = document.getElementsByClassName("box")
+        Array.from(erase).forEach(x => x.innerHTML = '')
+      },
+
+      restartGame() {
+        this.disabled = false
+        this.hide = true
+        this.seen = false
+        this.status =
+          'Drag your ships onto your board, or randomize the placement! Click on the Bot Board to begin after setting your ship!'
+        //establish new Board
+        this.human = gameBoard(10)
+        this.humanBoard = this.human.getBoard()
+        this.bot = gameBoard(10)
+        this.botBoard = this.bot.getBoard()
+        this.randomBoatsBot()
+        this.eraseBoard()
       }
     },
     mounted() {
@@ -120,11 +176,7 @@
       this.botPlayer = player()
 
       //random bot placement on load
-      this.bot.placeShipRandomly(5)
-      this.bot.placeShipRandomly(4)
-      this.bot.placeShipRandomly(3)
-      this.bot.placeShipRandomly(3)
-      this.bot.placeShipRandomly(2)
+      this.randomBoatsBot()
     }
   }
 </script>
@@ -163,12 +215,26 @@
     margin: 0 50px;
   }
 
+  .boardDetails {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
   .gameOver {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     color: white;
     font-size: 50px;
     align-self: center;
     width: 400px;
-    line-height: 1.3;
+    line-height: 1.2;
+  }
+
+  .reset {
+    width: 50%;
+    font-size: 20px;
   }
 
   .box {
@@ -179,7 +245,41 @@
     font-size: 50px;
   }
 
+  .pc {
+    cursor: crosshair;
+  }
+
+  .disabled {
+    pointer-events: none;
+  }
+
+  .notDisabled {
+    pointer-events: auto;
+  }
+
+  .xcoord {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    width: 60px;
+    color: white;
+    font-size: 50px;
+  }
+
+  .ycoord {
+    display: flex;
+    justify-content: space-evenly;
+    height: 60px;
+    color: white;
+    font-size: 50px;
+    width: 650px;
+    margin-left: 60px;
+  }
+
   .random {
-    width: 20%;
+    font-size: 14px;
+    padding: 5px 10px;
+    height: 30px;
+    margin: 10px;
   }
 </style>
