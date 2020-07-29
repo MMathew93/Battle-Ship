@@ -42,6 +42,7 @@ function player() {
                 botCoords.push(b)
                 if (board[a][b] === markings.hit) {
                     lastHit = []
+                    movingUp = true
                     lastHit.push(a)
                     lastHit.push(b)
                     nextMove = []
@@ -57,6 +58,7 @@ function player() {
                     botCoords.push(y)
 
                     if (board[x][y] === markings.hit) {
+                        initialHit = []
                         initialHit.push(x)
                         initialHit.push(y)
                         nextMove.push([(x - 1), y])
@@ -111,22 +113,14 @@ function player() {
                     killingBlow = false
                     return this.botMove(gb)
                 } else {
-                    movingUp = false
+                    movingUp= false;
                     if (isHorizontal) {
-                        if (movingUp) {
-                            lastHit[1] = lastHit[1] + 1
-                        } else {
-                            lastHit[1] = lastHit[1] - 1
-                        }
+                        lastHit[1] = lastHit[1] - 1
                     } else {
-                        if (movingUp) {
-                            lastHit[0] = lastHit[0] + 1
-                        } else {
-                            lastHit[0] = lastHit[0] - 1
+                        lastHit[0] = lastHit[0] - 1
                         }
                     }
                 }
-            }
             //check if position is still on board
             if (lastHit[0] > 9 || lastHit[1] > 9) {
                 movingUp = false
