@@ -21,10 +21,42 @@
       </div>
       <div class="gameOver" v-show="gameOver">
         {{ status }}
-        <button class="random" v-if="hide" @click="randomBoatsHuman"> Random Ship Placement </button>
+        <div class="gameButtons">
+          <button class="gameSetup random" v-if="hide" @click="randomBoatsHuman"> Random Ship Placement </button>
+          <button class="gameSetup start" v-if="hide" @click="startGame"> Start Game</button>
+        </div>
         <button class="reset" v-if="seen" @click="restartGame"> Restart</button>
       </div>
-      <div class="display">
+      <div class="shipBox" v-if="hide">
+        <div class="boatPiece">
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+        </div>
+        <div class="boatPiece">
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+        </div>
+        <div class="boatPiece">
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+        </div>
+        <div class="boatPiece">
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+        </div>
+        <div class="boatPiece">
+          <div class="cell"></div>
+          <div class="cell"></div>
+        </div>
+      </div>
+      <div class="display" v-if="!hide">
         <div class="ycoord">
           <div v-for="(col, colindex) in botBoard" :key="colindex"> {{ colindex }} </div>
         </div>
@@ -68,7 +100,7 @@
         title: 'BATTLESHIP',
         hit: 'X',
         miss: 'O',
-        status: 'Drag your ships onto your board, or randomize the placement! Click on the Bot Board to begin after setting your ship!',
+        status: 'Drag your ships onto your board, or randomize the placement! Click on the Bot\'s board to shoot!',
         seen: false,
         hide: true,
         disabled: false,
@@ -129,13 +161,14 @@
       },
 
       randomBoatsHuman() {
-        this.hide = false
-        this.status = ''
+        this.human.getShips()
         this.human.placeShipRandomly(5)
         this.human.placeShipRandomly(4)
         this.human.placeShipRandomly(3)
         this.human.placeShipRandomly(3)
         this.human.placeShipRandomly(2)
+        console.log(this.humanBoard)
+        console.log(this.human.getShips())
       },
 
       randomBoatsBot() {
@@ -144,6 +177,11 @@
         this.bot.placeShipRandomly(3)
         this.bot.placeShipRandomly(3)
         this.bot.placeShipRandomly(2)
+      },
+
+      startGame() {
+        this.hide = false
+        this.status = ''
       },
 
       eraseBoard() {
@@ -201,6 +239,20 @@
   .playarea {
     display: flex;
     justify-content: space-evenly;
+  }
+
+  .shipBox {
+    display: flex;
+    justify-content: space-between;
+    width: 20%;
+    align-items: center;
+  }
+
+  .cell {
+    width: 60px;
+    height: 60px;
+    border: 1px solid black;
+    background: darkgreen;
   }
 
   .display {
@@ -276,7 +328,11 @@
     margin-left: 60px;
   }
 
-  .random {
+  .gameButtons {
+    display: flex;
+  }
+
+  .gameSetup {
     font-size: 14px;
     padding: 5px 10px;
     height: 30px;
