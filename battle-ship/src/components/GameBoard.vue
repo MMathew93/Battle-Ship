@@ -27,33 +27,36 @@
         </div>
         <button class="reset" v-if="seen" @click="restartGame"> Restart</button>
       </div>
-      <div class="shipBox" v-if="hide">
-        <div class="boatPiece">
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-        </div>
-        <div class="boatPiece">
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-        </div>
-        <div class="boatPiece">
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-        </div>
-        <div class="boatPiece">
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-        </div>
-        <div class="boatPiece">
-          <div class="cell"></div>
-          <div class="cell"></div>
+      <div>
+        <button class="gameSetup" v-if="hide" @click="flipPieces"> Flip Pieces </button>
+        <div class="shipBox" v-if="hide" v-bind:class="{ 'boxFlip': flipped }">
+          <div class="boatPiece" draggable="true" v-bind:class="{ 'flipped': flipped }">
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+          </div>
+          <div class="boatPiece" draggable="true" v-bind:class="{ 'flipped': flipped }">
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+          </div>
+          <div class="boatPiece" draggable="true" v-bind:class="{ 'flipped': flipped }">
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+          </div>
+          <div class="boatPiece" draggable="true" v-bind:class="{ 'flipped': flipped }">
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+          </div>
+          <div class="boatPiece" draggable="true" v-bind:class="{ 'flipped': flipped }">
+            <div class="cell"></div>
+            <div class="cell"></div>
+          </div>
         </div>
       </div>
       <div class="display" v-if="!hide">
@@ -65,8 +68,9 @@
             <div v-for="(row, rowindex) in botBoard" :key="rowindex"> {{ rowindex }} </div>
           </div>
           <div v-for="(row, rowindex) in botBoard" :key="rowindex">
-            <div class="box pc" v-bind:class="{ 'disabled': disabled, 'notDisabled': !disabled }" v-for="(col, colindex) in botBoard" :key="rowindex-colindex"
-              :human-coords="[colindex, rowindex]" @click="takingTurns(colindex, rowindex)"></div>
+            <div class="box pc" v-bind:class="{ 'disabled': disabled }"
+              v-for="(col, colindex) in botBoard" :key="rowindex-colindex" :human-coords="[colindex, rowindex]"
+              @click="takingTurns(colindex, rowindex)"></div>
           </div>
         </div>
         <div class="boardDetails">
@@ -104,6 +108,7 @@
         seen: false,
         hide: true,
         disabled: false,
+        flipped: false,
         gameOver: true
       }
     },
@@ -182,6 +187,7 @@
       startGame() {
         this.hide = false
         this.status = ''
+        this.disabled = false
       },
 
       eraseBoard() {
@@ -202,6 +208,10 @@
         this.botBoard = this.bot.getBoard()
         this.randomBoatsBot()
         this.eraseBoard()
+      },
+
+      flipPieces() {
+        this.flipped = !this.flipped
       }
     },
     mounted() {
@@ -244,8 +254,18 @@
   .shipBox {
     display: flex;
     justify-content: space-between;
-    width: 20%;
+    width: 350px;
+    height: 350px;
     align-items: center;
+    margin: 25px;
+  }
+
+  .boxFlip {
+    flex-direction: column;
+  }
+
+  .flipped {
+    display: flex;
   }
 
   .cell {
@@ -303,10 +323,6 @@
 
   .disabled {
     pointer-events: none;
-  }
-
-  .notDisabled {
-    pointer-events: auto;
   }
 
   .xcoord {
