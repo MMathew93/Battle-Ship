@@ -125,6 +125,9 @@ function gameBoard(size) {
         },
         getMisses() {
             return misses
+        },
+        clearShips() {
+            ships= []
         }
     }
 }

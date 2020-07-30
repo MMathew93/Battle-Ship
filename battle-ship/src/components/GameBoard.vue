@@ -161,14 +161,14 @@
       },
 
       randomBoatsHuman() {
-        this.human.getShips()
+        this.human = gameBoard(10)
+        this.humanBoard = this.human.getBoard()
+        this.human.clearShips()
         this.human.placeShipRandomly(5)
         this.human.placeShipRandomly(4)
         this.human.placeShipRandomly(3)
         this.human.placeShipRandomly(3)
         this.human.placeShipRandomly(2)
-        console.log(this.humanBoard)
-        console.log(this.human.getShips())
       },
 
       randomBoatsBot() {
