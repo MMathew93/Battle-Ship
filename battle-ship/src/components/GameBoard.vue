@@ -11,8 +11,9 @@
             <div v-for="(row, rowindex) in humanBoard" :key="rowindex"> {{ rowindex }} </div>
           </div>
           <div v-for="(row, rowindex) in humanBoard" :key="rowindex">
-            <div class="box" v-for="(col, colindex) in humanBoard" :key="rowindex-colindex"
-              :bot-coords="[colindex, rowindex]"></div>
+            <div class="box human" v-for="(col, colindex) in humanBoard" :key="rowindex-colindex"
+              :data-coords="[colindex, rowindex]" @dragover.prevent @drop="drop">
+            </div>
           </div>
         </div>
         <div class="boardDetails">
@@ -29,31 +30,31 @@
       </div>
       <div>
         <button class="gameSetup" v-if="hide" @click="flipPieces"> Flip Pieces </button>
-        <div class="shipBox" v-if="hide" v-bind:class="{ 'boxFlip': flipped }">
-          <div class="boatPiece" draggable="true" v-bind:class="{ 'flipped': flipped }">
+        <div class="shipBox" v-if="hide" v-bind:class="{ 'boxFlip': flipped }"  @dragstart="dragStart">
+          <div class="boatPiece" draggable="true" :data-length="5" data-position="y" v-bind:class="{ 'flipped': flipped }">
             <div class="cell"></div>
             <div class="cell"></div>
             <div class="cell"></div>
             <div class="cell"></div>
             <div class="cell"></div>
           </div>
-          <div class="boatPiece" draggable="true" v-bind:class="{ 'flipped': flipped }">
+          <div class="boatPiece" draggable="true" :data-length="4" data-position="y" v-bind:class="{ 'flipped': flipped }">
             <div class="cell"></div>
             <div class="cell"></div>
             <div class="cell"></div>
             <div class="cell"></div>
           </div>
-          <div class="boatPiece" draggable="true" v-bind:class="{ 'flipped': flipped }">
+          <div class="boatPiece" draggable="true" :data-length="3" data-position="y" v-bind:class="{ 'flipped': flipped }">
             <div class="cell"></div>
             <div class="cell"></div>
             <div class="cell"></div>
           </div>
-          <div class="boatPiece" draggable="true" v-bind:class="{ 'flipped': flipped }">
+          <div class="boatPiece" draggable="true" :data-length="3" data-position="y" v-bind:class="{ 'flipped': flipped }">
             <div class="cell"></div>
             <div class="cell"></div>
             <div class="cell"></div>
           </div>
-          <div class="boatPiece" draggable="true" v-bind:class="{ 'flipped': flipped }">
+          <div class="boatPiece" draggable="true" :data-length="2" data-position="y" v-bind:class="{ 'flipped': flipped }">
             <div class="cell"></div>
             <div class="cell"></div>
           </div>
@@ -68,9 +69,9 @@
             <div v-for="(row, rowindex) in botBoard" :key="rowindex"> {{ rowindex }} </div>
           </div>
           <div v-for="(row, rowindex) in botBoard" :key="rowindex">
-            <div class="box pc" v-bind:class="{ 'disabled': disabled }"
-              v-for="(col, colindex) in botBoard" :key="rowindex-colindex" :human-coords="[colindex, rowindex]"
-              @click="takingTurns(colindex, rowindex)"></div>
+            <div class="box pc" v-bind:class="{ 'disabled': disabled }" v-for="(col, colindex) in botBoard"
+              :key="rowindex-colindex" :data-coords="[colindex, rowindex]" @click="takingTurns(colindex, rowindex)">
+            </div>
           </div>
         </div>
         <div class="boardDetails">
@@ -129,23 +130,23 @@
 
       updateBotBoard(colindex, rowindex) {
         if (this.botBoard[colindex][rowindex] === 'X') {
-          const spot = document.querySelector(`[human-coords="${colindex},${rowindex}"]`);
+          const spot = document.querySelector(`.pc[data-coords="${colindex},${rowindex}"]`);
           spot.append('X')
         }
         if (this.botBoard[colindex][rowindex] === 'O') {
-          const spot = document.querySelector(`[human-coords="${colindex},${rowindex}"]`);
+          const spot = document.querySelector(`.pc[data-coords="${colindex},${rowindex}"]`);
           spot.append('O')
         }
       },
 
       updateHumanBoard(coords) {
         if (this.humanBoard[coords[0]][coords[1]] === 'X') {
-          const spot = document.querySelector(`[bot-coords="${coords[0]},${coords[1]}"]`);
-          spot.innerHTML = 'X'
+          const spot = document.querySelector(`.human[data-coords="${coords[0]},${coords[1]}"]`);
+          spot.append('X')
         }
         if (this.humanBoard[coords[0]][coords[1]] === 'O') {
-          const spot = document.querySelector(`[bot-coords="${coords[0]},${coords[1]}"]`);
-          spot.innerHTML = 'O'
+          const spot = document.querySelector(`.human[data-coords="${coords[0]},${coords[1]}"]`);
+          spot.append('O')
         }
       },
 
@@ -212,6 +213,22 @@
 
       flipPieces() {
         this.flipped = !this.flipped
+      },
+
+      //DRAG AND DROP FUNCTIONS
+      drop(e) {
+        //const tileData= e.dataTransfer.getData('text/plain')
+        //console.log(tileData)
+
+        const coordData= e.target.dataset.coords
+        console.log(coordData)
+      },
+      
+      dragStart(e) {
+        const isHorizontal= e.target.dataset
+        const length= e.target.dataset.length
+        console.log(isHorizontal)
+        console.log(length)
       }
     },
     mounted() {
@@ -300,7 +317,7 @@
     color: white;
     font-size: 50px;
     align-self: center;
-    width: 400px;
+    width: 600px;
     line-height: 1.2;
   }
 

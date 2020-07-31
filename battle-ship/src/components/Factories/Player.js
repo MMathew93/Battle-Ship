@@ -67,7 +67,7 @@ function player() {
                         nextMove.push([x, (y + 1)])
 
                         for (let i = 0; i < nextMove.length; i++) {
-                            const spot = document.querySelector(`[bot-coords="${nextMove[i][0]},${nextMove[i][1]}"]`);
+                            const spot = document.querySelector(`.human[data-coords="${nextMove[i][0]},${nextMove[i][1]}"]`);
                             if (nextMove[i][0] < 0 || nextMove[i][0] > board.length - 1) {
                                 nextMove.splice(i, 1)
                                 i = -1
@@ -91,7 +91,7 @@ function player() {
         },
         killConfirm(isHorizontal, gb) {
             //check previous shot to see if we hit or miss before proceeding
-            const lastTile = document.querySelector(`[bot-coords="${lastHit[0]},${lastHit[1]}"]`)
+            const lastTile = document.querySelector(`.human[data-coords="${lastHit[0]},${lastHit[1]}"]`)
             if (lastTile.innerHTML === 'X') {
                 if (isHorizontal) {
                     if (movingUp) {
@@ -135,7 +135,7 @@ function player() {
                 return this.botMove(gb)
             }
             //this will check our current shot and see if it has been marked already prior
-            const shotTile = document.querySelector(`[bot-coords="${lastHit[0]},${lastHit[1]}"]`)
+            const shotTile = document.querySelector(`.human[data-coords="${lastHit[0]},${lastHit[1]}"]`)
             if (shotTile.innerHTML === 'X') {
                 return this.killConfirm(isHorizontal, gb)
             } else if (shotTile.innerHTML === 'O') {
