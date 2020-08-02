@@ -29,32 +29,31 @@
         <button class="reset" v-if="seen" @click="restartGame"> Restart</button>
       </div>
       <div>
-        <button class="gameSetup" v-if="hide" @click="flipPieces"> Flip Pieces </button>
-        <div class="shipBox" v-if="hide" v-bind:class="{ 'boxFlip': flipped }"  @dragstart="dragStart">
-          <div class="boatPiece" draggable="true" :data-length="5" data-position="y" v-bind:class="{ 'flipped': flipped }">
+        <div class="shipBox" v-if="hide" @dragstart="dragStart">
+          <div class="boatPiece 5" draggable="true" :data-length="5" data-position="y">
             <div class="cell"></div>
             <div class="cell"></div>
             <div class="cell"></div>
             <div class="cell"></div>
             <div class="cell"></div>
           </div>
-          <div class="boatPiece" draggable="true" :data-length="4" data-position="y" v-bind:class="{ 'flipped': flipped }">
+          <div class="boatPiece 4" draggable="true" :data-length="4" data-position="y">
             <div class="cell"></div>
             <div class="cell"></div>
             <div class="cell"></div>
             <div class="cell"></div>
           </div>
-          <div class="boatPiece" draggable="true" :data-length="3" data-position="y" v-bind:class="{ 'flipped': flipped }">
+          <div class="boatPiece 3-1" draggable="true" :data-length="3" data-position="y">
             <div class="cell"></div>
             <div class="cell"></div>
             <div class="cell"></div>
           </div>
-          <div class="boatPiece" draggable="true" :data-length="3" data-position="y" v-bind:class="{ 'flipped': flipped }">
+          <div class="boatPiece 3-2" draggable="true" :data-length="3" data-position="y">
             <div class="cell"></div>
             <div class="cell"></div>
             <div class="cell"></div>
           </div>
-          <div class="boatPiece" draggable="true" :data-length="2" data-position="y" v-bind:class="{ 'flipped': flipped }">
+          <div class="boatPiece 2" draggable="true" :data-length="2" data-position="y">
             <div class="cell"></div>
             <div class="cell"></div>
           </div>
@@ -105,11 +104,11 @@
         title: 'BATTLESHIP',
         hit: 'X',
         miss: 'O',
-        status: 'Drag your ships onto your board, or randomize the placement! Click on the Bot\'s board to shoot!',
+        status: 'Drag your ships onto your board and click them to flip, or randomize the placement! Click on the Bot\'s board to shoot!',
         seen: false,
         hide: true,
         disabled: false,
-        flipped: false,
+        draggedShip: null,
         gameOver: true
       }
     },
@@ -211,22 +210,30 @@
         this.eraseBoard()
       },
 
-      flipPieces() {
-        this.flipped = !this.flipped
+      flipShipPiece(e) {
+        const ship = e.currentTarget
+        const isHorizontal = ship.dataset.position
+        const pos = isHorizontal === 'x' ? 'y' : 'x'
+        ship.dataset.position = pos;
+        ship.style['grid-auto-flow'] = pos === 'x' ? 'row' : 'column';
       },
 
       //DRAG AND DROP FUNCTIONS
       drop(e) {
-        //const tileData= e.dataTransfer.getData('text/plain')
-        //console.log(tileData)
-
-        const coordData= e.target.dataset.coords
-        console.log(coordData)
+        const coordData = (e.target.dataset.coords).split(',').map(x => Number(x))
+        let allShips = document.querySelectorAll(".boatPiece")
+        let ships = Array.from(allShips)
+        ships.forEach(x => x.addEventListener('dragStart', this.dragStart))
+        ships.forEach(x => x.addEventListener('click', this.flipShipPiece))
+        document.querySelector(`.human[data-coords="${coordData[0]},${coordData[1]}"]`).append(this.draggedShip)
+        this.draggedShip = null
       },
-      
+
       dragStart(e) {
-        const isHorizontal= e.target.dataset
-        const length= e.target.dataset.length
+        const isHorizontal = e.target.dataset.position
+        const length = e.target.dataset.length
+        this.draggedShip = e.target
+        console.log(this.draggedShip)
         console.log(isHorizontal)
         console.log(length)
       }
@@ -270,6 +277,7 @@
 
   .shipBox {
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
     width: 350px;
     height: 350px;
@@ -277,19 +285,12 @@
     margin: 25px;
   }
 
-  .boxFlip {
-    flex-direction: column;
-  }
-
-  .flipped {
-    display: flex;
-  }
-
   .cell {
     width: 60px;
     height: 60px;
     border: 1px solid black;
     background: darkgreen;
+    z-index: 1;
   }
 
   .display {
@@ -370,5 +371,19 @@
     padding: 5px 10px;
     height: 30px;
     margin: 10px;
+  }
+
+  .overlay {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    z-index: 1;
+  }
+
+  .boatPiece {
+    display: grid;
+    grid-auto-flow: column;
+    cursor: move;
+    z-index: 69;
   }
 </style>
