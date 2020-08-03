@@ -24,10 +24,11 @@
         {{ status }}
         <div class="gameButtons">
           <button class="gameSetup random" v-if="hide" @click="randomBoatsHuman"> Random Ship Placement </button>
-          <button class="gameSetup start" v-if="hide" @click="startGame"> Start Game</button>
+          <button class="gameSetup start" v-if="hide" @click="startGame" :disabled="isDisabled"> Start Game</button>
         </div>
         <button class="reset" v-if="seen" @click="restartGame"> Restart</button>
       </div>
+      <div>
         <div class="shipBox" v-if="hide">
           <div id="carrier" class="boatPiece 5" draggable="true" :data-length="5" data-position="y" @dragstart="onDragStart" @click="flipShipPiece">
             <div class="cell"></div>
@@ -56,6 +57,7 @@
             <div class="cell"></div>
             <div class="cell"></div>
           </div>
+        </div>
         </div>
       
       <div class="display" v-if="!hide">
@@ -107,8 +109,8 @@
         seen: false,
         hide: true,
         disabled: false,
-        draggedShip: null,
-        coordinates: [],
+        isDisabled: true,
+        shipPrePlacement: new Array(5),
         gameOver: true
       }
     },
@@ -174,6 +176,7 @@
         this.human.placeShipRandomly(3)
         this.human.placeShipRandomly(3)
         this.human.placeShipRandomly(2)
+        this.isDisabled= false
       },
 
       randomBoatsBot() {
@@ -188,9 +191,12 @@
         this.hide = false
         this.status = ''
         this.disabled = false
-        let allShips = document.querySelectorAll(".boatPiece")
-        let ships = Array.from(allShips)
-        ships.forEach(x => x.removeAttribute('draggable'))
+        for(let i = 0; i < this.shipPrePlacement.length; i++) {
+          let tempData= JSON.parse(this.shipPrePlacement[i])
+          tempData.data.position === 'y' ? true : false
+          this.human.placeShip(tempData.data.length, tempData.coordData[0], tempData.coordData[1], tempData.data.position)
+        }
+        console.log(this.humanBoard)
       },
 
       eraseBoard() {
@@ -204,6 +210,7 @@
         this.seen = false
         this.status =
           'Drag your ships onto your board, or randomize the placement! Click on the Bot Board to begin after setting your ship!'
+          this.isDisabled = true
         //establish new Board
         this.human = gameBoard(10)
         this.humanBoard = this.human.getBoard()
@@ -217,21 +224,48 @@
       flipShipPiece(e) {
         const ship = e.currentTarget
         const isHorizontal = ship.dataset.position
-        const pos = isHorizontal === 'x' ? 'y' : 'x'
+        const pos = isHorizontal === 'y' ? 'x' : 'y'
         ship.dataset.position = pos;
-        ship.style['grid-auto-flow'] = pos === 'x' ? 'row' : 'column';
+        ship.style['grid-auto-flow'] = pos === 'y' ? 'row' : 'column';
       },
 
       drop(e) {
         let data = JSON.parse(e.dataTransfer.getData('text/plain'))
         const draggableElement= document.getElementById(data.id)
         const coordData = (e.target.dataset.coords).split(',').map(x => Number(x))
-        if (coordData[0] + data.length > this.humanBoard.length + 1 || coordData[1] + data.length > this.humanBoard.length + 1) {
+        if (data.position === 'y' && coordData[0] + data.length > this.humanBoard.length) {
                     throw new Error('This is outside the gameboard')
-                }
+        } else if(data.position === 'x' && coordData[1] + data.length > this.humanBoard.length) {
+                    throw new Error('This is outside the gameboard')
+        }
+
         let dropLocation = document.querySelector(`.human[data-coords="${coordData[0]},${coordData[1]}"]`)
         dropLocation.append(draggableElement)
+        if(data.id === 'carrier') {
+          this.shipPrePlacement[0] = JSON.stringify({data, coordData})
+        }
+        if(data.id === 'cruiser') {
+          this.shipPrePlacement[1] = JSON.stringify({data, coordData})
+        }
+        if(data.id === 'battleship') {
+          this.shipPrePlacement[2] = JSON.stringify({data, coordData})
+        }
+        if(data.id === 'submarine') {
+          this.shipPrePlacement[3] = JSON.stringify({data, coordData})
+        }
+        if(data.id === 'patrolboat') {
+          this.shipPrePlacement[4] = JSON.stringify({data, coordData})
+        }
         e.dataTransfer.clearData();
+        this.isEmpty()
+      },
+
+      isEmpty() {
+        let isEmpty = document.querySelector('.shipBox').innerHTML === ''
+        if(isEmpty) {
+          this.isDisabled = false
+          console.log('hello')
+        }
       },
 
       onDragStart(e){
@@ -240,33 +274,6 @@
         const id= e.target.id
         e.dataTransfer.setData('text/plain', JSON.stringify({id, position, length}))
       }
-      /**placeTheShip(shipLength, x, y, position) {
-        //this.draggedShip = e.currentTarget
-        let isHorizontal = position === 'y' ? true : false
-        this.human.placeShip(shipLength, x, y, isHorizontal)
-        console.log(this.humanBoard)
-        console.log(this.draggedShip)
-      },
-
-      drop(e) {
-        const data= JSON.parse(e.dataTransfer.getData('text/plain'))
-        const coordData = (e.target.dataset.coords).split(',').map(x => Number(x))
-        let allShips = document.querySelectorAll(".boatPiece")
-        let ships = Array.from(allShips)
-        ships.forEach(x => x.addEventListener('dragStart', this.placeTheShip(data.length, coordData[0], coordData[1], data.position)))
-        //ships.forEach(x => x.addEventListener('dragStart', this.dragPiece))
-        ships.forEach(x => x.addEventListener('click', this.flipShipPiece))
-        document.querySelector(`.human[data-coords="${coordData[0]},${coordData[1]}"]`).append(this.draggedShip)
-        //this.coordinates.push([coordData[0], coordData[1]], position)
-        //this.draggedShip = null
-      },
-
-      dragPiece(e) {
-        const position = e.target.dataset.position
-        const length = e.target.dataset.length
-        e.dataTransfer.setData('text/plain', JSON.stringify({position, length}))
-        this.draggedShip = e.target
-      }*/
     },
     mounted() {
       //establish data
