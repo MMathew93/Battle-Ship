@@ -30,36 +30,41 @@
       </div>
       <div>
         <div class="shipBox" v-if="hide">
-          <div id="carrier" class="boatPiece 5" draggable="true" :data-length="5" data-position="y" @dragstart="onDragStart" @click="flipShipPiece">
+          <div id="carrier" class="boatPiece 0" draggable="true" :data-length="5" data-position="y"
+            @dragstart="onDragStart" @click="flipShipPiece">
             <div class="cell"></div>
             <div class="cell"></div>
             <div class="cell"></div>
             <div class="cell"></div>
             <div class="cell"></div>
           </div>
-          <div id="cruiser" class="boatPiece 4" draggable="true" :data-length="4" data-position="y" @dragstart="onDragStart" @click="flipShipPiece">
+          <div id="cruiser" class="boatPiece 1" draggable="true" :data-length="4" data-position="y"
+            @dragstart="onDragStart" @click="flipShipPiece">
             <div class="cell"></div>
             <div class="cell"></div>
             <div class="cell"></div>
             <div class="cell"></div>
           </div>
-          <div id="battleship" class="boatPiece 3-1" draggable="true" :data-length="3" data-position="y" @dragstart="onDragStart" @click="flipShipPiece">
+          <div id="battleship" class="boatPiece 2" draggable="true" :data-length="3" data-position="y"
+            @dragstart="onDragStart" @click="flipShipPiece">
             <div class="cell"></div>
             <div class="cell"></div>
             <div class="cell"></div>
           </div>
-          <div id="submarine" class="boatPiece 3-2" draggable="true" :data-length="3" data-position="y" @dragstart="onDragStart" @click="flipShipPiece">
+          <div id="submarine" class="boatPiece 3" draggable="true" :data-length="3" data-position="y"
+            @dragstart="onDragStart" @click="flipShipPiece">
             <div class="cell"></div>
             <div class="cell"></div>
             <div class="cell"></div>
           </div>
-          <div id="patrolboat" class="boatPiece 2" draggable="true" :data-length="2" data-position="y" @dragstart="onDragStart" @click="flipShipPiece">
+          <div id="patrolboat" class="boatPiece 4" draggable="true" :data-length="2" data-position="y"
+            @dragstart="onDragStart" @click="flipShipPiece">
             <div class="cell"></div>
             <div class="cell"></div>
           </div>
         </div>
-        </div>
-      
+      </div>
+
       <div class="display" v-if="!hide">
         <div class="ycoord">
           <div v-for="(col, colindex) in botBoard" :key="colindex"> {{ colindex }} </div>
@@ -176,7 +181,18 @@
         this.human.placeShipRandomly(3)
         this.human.placeShipRandomly(3)
         this.human.placeShipRandomly(2)
-        this.isDisabled= false
+        let ships= this.human.getShips()
+        for(let i = 0; i < ships.length; i++) {
+          const spot = document.querySelector(`.human[data-coords="${ships[i].coordinates[0][0]},${ships[i].coordinates[0][1]}"]`);
+          if(ships[i].coordinates[0][0] === ships[i].coordinates[1][0]) {
+            document.getElementsByClassName(`${i}`)[0].style['grid-auto-flow'] = 'column'
+            spot.append(document.getElementsByClassName(`${i}`)[0]) 
+          }else {
+            document.getElementsByClassName(`${i}`)[0].style['grid-auto-flow'] = 'row'
+            spot.append(document.getElementsByClassName(`${i}`)[0]) 
+          }
+        }
+        this.isDisabled = false
       },
 
       randomBoatsBot() {
@@ -191,12 +207,7 @@
         this.hide = false
         this.status = ''
         this.disabled = false
-        for(let i = 0; i < this.shipPrePlacement.length; i++) {
-          let tempData= JSON.parse(this.shipPrePlacement[i])
-          tempData.data.position === 'y' ? true : false
-          this.human.placeShip(tempData.data.length, tempData.coordData[0], tempData.coordData[1], tempData.data.position)
-        }
-        console.log(this.humanBoard)
+        document.getElementsByClassName('boatPiece').forEach(x=> x.setAttribute('draggable',false));
       },
 
       eraseBoard() {
@@ -210,7 +221,7 @@
         this.seen = false
         this.status =
           'Drag your ships onto your board, or randomize the placement! Click on the Bot Board to begin after setting your ship!'
-          this.isDisabled = true
+        this.isDisabled = true
         //establish new Board
         this.human = gameBoard(10)
         this.humanBoard = this.human.getBoard()
@@ -223,56 +234,96 @@
       //DRAG AND DROP FUNCTIONS
       flipShipPiece(e) {
         const ship = e.currentTarget
-        const isHorizontal = ship.dataset.position
-        const pos = isHorizontal === 'y' ? 'x' : 'y'
+        const isVertical = ship.dataset.position
+        const pos = isVertical === 'y' ? 'x' : 'y'
         ship.dataset.position = pos;
         ship.style['grid-auto-flow'] = pos === 'y' ? 'row' : 'column';
+        this.shipValidator()
+        this.allShipsPlaced()
       },
 
       drop(e) {
         let data = JSON.parse(e.dataTransfer.getData('text/plain'))
-        const draggableElement= document.getElementById(data.id)
+        const draggableElement = document.getElementById(data.id)
         const coordData = (e.target.dataset.coords).split(',').map(x => Number(x))
-        if (data.position === 'y' && coordData[0] + data.length > this.humanBoard.length) {
-                    throw new Error('This is outside the gameboard')
-        } else if(data.position === 'x' && coordData[1] + data.length > this.humanBoard.length) {
-                    throw new Error('This is outside the gameboard')
+        if(data.id !== '') {
+        if (data.position === 'x' && coordData[1] + data.length > this.humanBoard.length) {
+          throw new Error('This is outside the gameboard')
+        } else if (data.position === 'y' && coordData[0] + data.length > this.humanBoard.length) {
+          throw new Error('This is outside the gameboard')
+        }
         }
 
         let dropLocation = document.querySelector(`.human[data-coords="${coordData[0]},${coordData[1]}"]`)
         dropLocation.append(draggableElement)
-        if(data.id === 'carrier') {
-          this.shipPrePlacement[0] = JSON.stringify({data, coordData})
+        if (data.id === 'carrier') {
+          this.shipPrePlacement[0] = JSON.stringify({
+            data,
+            coordData
+          })
         }
-        if(data.id === 'cruiser') {
-          this.shipPrePlacement[1] = JSON.stringify({data, coordData})
+        if (data.id === 'cruiser') {
+          this.shipPrePlacement[1] = JSON.stringify({
+            data,
+            coordData
+          })
         }
-        if(data.id === 'battleship') {
-          this.shipPrePlacement[2] = JSON.stringify({data, coordData})
+        if (data.id === 'battleship') {
+          this.shipPrePlacement[2] = JSON.stringify({
+            data,
+            coordData
+          })
         }
-        if(data.id === 'submarine') {
-          this.shipPrePlacement[3] = JSON.stringify({data, coordData})
+        if (data.id === 'submarine') {
+          this.shipPrePlacement[3] = JSON.stringify({
+            data,
+            coordData
+          })
         }
-        if(data.id === 'patrolboat') {
-          this.shipPrePlacement[4] = JSON.stringify({data, coordData})
+        if (data.id === 'patrolboat') {
+          this.shipPrePlacement[4] = JSON.stringify({
+            data,
+            coordData
+          })
         }
         e.dataTransfer.clearData();
-        this.isEmpty()
+        this.shipValidator()
+        this.allShipsPlaced()
       },
 
-      isEmpty() {
+      allShipsPlaced() {
+        //this will allo start of game when box is empty, HOWEVER we need to keep disabled if ships are outside gameboard or are on top of one another
         let isEmpty = document.querySelector('.shipBox').innerHTML === ''
-        if(isEmpty) {
+        if (isEmpty && this.human.getShips().length === 5) {
           this.isDisabled = false
-          console.log('hello')
+        }else {
+          this.isDisabled = true
         }
       },
 
-      onDragStart(e){
+      shipValidator() {
+        this.human = gameBoard(10)
+        this.humanBoard = this.human.getBoard()
+        this.human.clearShips()
+        for (let i = 0; i < this.shipPrePlacement.length; i++) {
+          let tempData = JSON.parse(this.shipPrePlacement[i])
+          let isHorizontal = tempData.data.position === 'x' ? true : false
+          this.human.placeShip(tempData.data.length, tempData.coordData[0], tempData.coordData[1], isHorizontal)
+        }
+        this.allShipsPlaced()
+      },
+
+      onDragStart(e) {
         const position = e.target.dataset.position
-        const length= +e.target.dataset.length
-        const id= e.target.id
-        e.dataTransfer.setData('text/plain', JSON.stringify({id, position, length}))
+        const length = +e.target.dataset.length
+        const id = e.target.id
+        if(e.target.id !== null) {
+        e.dataTransfer.setData('text/plain', JSON.stringify({
+          id,
+          position,
+          length
+        }))
+        }
       }
     },
     mounted() {
@@ -314,7 +365,6 @@
 
   .shipBox {
     display: flex;
-    flex-direction: column;
     justify-content: space-between;
     width: 350px;
     height: 350px;
@@ -419,7 +469,6 @@
 
   .boatPiece {
     display: grid;
-    grid-auto-flow: column;
     cursor: move;
     z-index: 69;
   }

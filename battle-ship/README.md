@@ -25,4 +25,8 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 
 ### Current bugs or small issues
-gameBoard function gameLoss provides console log and undefined, unsure what unefined is coming from
+$$ If user wants to be cheeky and stack pieces after they have placed ships in a valid location, game will start, however User will only have valid ships from largest to smallest prior to invalid stack attempt. 
+
+$$ If user does an invalid rotation then starts game, boar will be saved in previous location prior to rotation.
+
+$$ randomizing board, then if user moves a piece wipes board and blanks it out
