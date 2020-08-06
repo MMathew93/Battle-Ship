@@ -2,20 +2,41 @@
   <div class="main">
     <div class="title"> {{ title }} </div>
     <div class="playarea">
-      <div class="display">
+      <div>
         <div class="ycoord">
           <div v-for="(col, colindex) in humanBoard" :key="colindex"> {{ colindex }} </div>
         </div>
-        <div class="gameboard">
-          <div class="xcoord">
-            <div v-for="(row, rowindex) in humanBoard" :key="rowindex"> {{ rowindex }} </div>
-          </div>
-          <div v-for="(row, rowindex) in humanBoard" :key="rowindex">
-            <div class="box human" v-for="(col, colindex) in humanBoard" :key="rowindex-colindex"
-              :data-coords="[colindex, rowindex]" @dragover.prevent @drop="drop">
+
+
+        <div class="gameboardHolder">
+
+          <div>
+            <div class="gameboard clone" v-if="!hide">
+              <div v-for="(row, rowindex) in humanBoard" :key="rowindex">
+                <div class="box human" v-for="(col, colindex) in humanBoard" :key="rowindex-colindex"
+                  :data-coords="[colindex, rowindex]" @dragover.prevent @drop="drop">
+                </div>
+              </div>
+            </div>
+
+            <div class="xcoord">
+              <div v-for="(row, rowindex) in humanBoard" :key="rowindex"> {{ rowindex }} </div>
+            </div>
+
+
+            <div class="gameboard">
+
+              <div v-for="(row, rowindex) in humanBoard" :key="rowindex">
+                <div class="box human" v-for="(col, colindex) in humanBoard" :key="rowindex-colindex"
+                  :data-coords="[colindex, rowindex]" @dragover.prevent @drop="drop">
+                </div>
+              </div>
             </div>
           </div>
         </div>
+
+
+
         <div class="boardDetails">
           <h1> Your Battalion </h1>
         </div>
@@ -69,8 +90,8 @@
         <div class="ycoord">
           <div v-for="(col, colindex) in botBoard" :key="colindex"> {{ colindex }} </div>
         </div>
-        <div class="gameboard">
-          <div class="xcoord">
+        <div class="botBoard">
+          <div class="botXcoord">
             <div v-for="(row, rowindex) in botBoard" :key="rowindex"> {{ rowindex }} </div>
           </div>
           <div v-for="(row, rowindex) in botBoard" :key="rowindex">
@@ -79,7 +100,7 @@
             </div>
           </div>
         </div>
-        <div class="boardDetails">
+        <div class="botDetails">
           <h1> Computer Battalion </h1>
         </div>
       </div>
@@ -181,15 +202,16 @@
         this.human.placeShipRandomly(3)
         this.human.placeShipRandomly(3)
         this.human.placeShipRandomly(2)
-        let ships= this.human.getShips()
-        for(let i = 0; i < ships.length; i++) {
-          const spot = document.querySelector(`.human[data-coords="${ships[i].coordinates[0][0]},${ships[i].coordinates[0][1]}"]`);
-          if(ships[i].coordinates[0][0] === ships[i].coordinates[1][0]) {
+        let ships = this.human.getShips()
+        for (let i = 0; i < ships.length; i++) {
+          const spot = document.querySelector(
+            `.human[data-coords="${ships[i].coordinates[0][0]},${ships[i].coordinates[0][1]}"]`);
+          if (ships[i].coordinates[0][0] === ships[i].coordinates[1][0]) {
             document.getElementsByClassName(`${i}`)[0].style['grid-auto-flow'] = 'column'
-            spot.append(document.getElementsByClassName(`${i}`)[0]) 
-          }else {
+            spot.append(document.getElementsByClassName(`${i}`)[0])
+          } else {
             document.getElementsByClassName(`${i}`)[0].style['grid-auto-flow'] = 'row'
-            spot.append(document.getElementsByClassName(`${i}`)[0]) 
+            spot.append(document.getElementsByClassName(`${i}`)[0])
           }
         }
         this.isDisabled = false
@@ -207,7 +229,17 @@
         this.hide = false
         this.status = ''
         this.disabled = false
-        document.getElementsByClassName('boatPiece').forEach(x=> x.setAttribute('draggable',false));
+        /** Need to append data coords to all cells of the boat once placed on the board, then we can append to the boat and not board
+         * const boats = document.querySelectorAll('.boatPiece')
+        Array.from(boats).forEach((boat) => {
+          boat.removeAttribute('draggable')
+          const isVertical = boat.dataset.position === 'x'
+          boat.querySelectorAll('.cell').forEach((cell, i) => {
+          const currentCoord = isVertical ? [colindex, rowindex + i] : [colindex + i, rowindex]
+          cell.dataset.coords = currentCoord
+        })
+         */
+
       },
 
       eraseBoard() {
@@ -246,12 +278,12 @@
         let data = JSON.parse(e.dataTransfer.getData('text/plain'))
         const draggableElement = document.getElementById(data.id)
         const coordData = (e.target.dataset.coords).split(',').map(x => Number(x))
-        if(data.id !== '') {
-        if (data.position === 'x' && coordData[1] + data.length > this.humanBoard.length) {
-          throw new Error('This is outside the gameboard')
-        } else if (data.position === 'y' && coordData[0] + data.length > this.humanBoard.length) {
-          throw new Error('This is outside the gameboard')
-        }
+        if (data.id !== '') {
+          if (data.position === 'x' && coordData[1] + data.length > this.humanBoard.length) {
+            throw new Error('This is outside the gameboard')
+          } else if (data.position === 'y' && coordData[0] + data.length > this.humanBoard.length) {
+            throw new Error('This is outside the gameboard')
+          }
         }
 
         let dropLocation = document.querySelector(`.human[data-coords="${coordData[0]},${coordData[1]}"]`)
@@ -296,7 +328,7 @@
         let isEmpty = document.querySelector('.shipBox').innerHTML === ''
         if (isEmpty && this.human.getShips().length === 5) {
           this.isDisabled = false
-        }else {
+        } else {
           this.isDisabled = true
         }
       },
@@ -317,12 +349,12 @@
         const position = e.target.dataset.position
         const length = +e.target.dataset.length
         const id = e.target.id
-        if(e.target.id !== null) {
-        e.dataTransfer.setData('text/plain', JSON.stringify({
-          id,
-          position,
-          length
-        }))
+        if (e.target.id !== null) {
+          e.dataTransfer.setData('text/plain', JSON.stringify({
+            id,
+            position,
+            length
+          }))
         }
       }
     },
@@ -385,14 +417,38 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+
+  }
+
+  .gameboardHolder {
+    position: relative;
   }
 
   .gameboard {
     display: flex;
     margin: 0 50px;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .botBoard {
+    display: flex;
+    margin: 0 50px;
+  }
+
+  .clone {
+    z-index: 99;
   }
 
   .boardDetails {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 600px;
+  }
+
+  .botDetails{
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -434,9 +490,19 @@
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
-    width: 60px;
     color: white;
     font-size: 50px;
+    position: absolute;
+    margin-top: 15px;
+  }
+
+  .botXcoord {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    color: white;
+    font-size: 50px;
+    margin-right: 15px;
   }
 
   .ycoord {
@@ -446,7 +512,7 @@
     color: white;
     font-size: 50px;
     width: 650px;
-    margin-left: 60px;
+    margin-left: 30px;
   }
 
   .gameButtons {
