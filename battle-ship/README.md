@@ -14,6 +14,11 @@ Javascript
 ## Hosted Demo
 [Hosted on Heroku](https://battle-ship-odin.herokuapp.com/)!
 
+
+## Demo
+![](../assets/battleship_demo.gif)
+
+
 ## Project setup
 ```
 npm install
