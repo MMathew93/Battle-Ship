@@ -16,7 +16,7 @@ Javascript
 
 
 ## Demo
-![](../assets/battleship_demo.gif)
+![](battleship_demo.gif)
 
 
 ## Project setup
