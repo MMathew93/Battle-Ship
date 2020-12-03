@@ -12,7 +12,7 @@ Javascript
 
 
 ## Hosted Demo
-[Hosted on Heroku](https://cli.vuejs.org/config/)!
+[Hosted on Heroku](https://battle-ship-odin.herokuapp.com/)!
 
 ## Project setup
 ```
